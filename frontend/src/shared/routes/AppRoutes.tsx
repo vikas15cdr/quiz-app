@@ -5,6 +5,10 @@ import RegisterPage from '@/modules/auth/pages/RegisterPage';
 import FeaturesPage from '../pages/FeaturesPage';
 import AboutPage from '../pages/AboutPage';
 import ContactPage from '../pages/ContactPage';
+import CreateQuiz from '@/modules/teacher/pages/CreateQuiz';
+import TeacherDashboard from '@/modules/teacher/pages/Dashboard';
+import StudentDashboard from '@/modules/student/pages/Dashboard';
+import QuizPage from '@/modules/student/pages/QuizPage';
 
 export function AppRoutes() {
   return (
@@ -15,6 +19,11 @@ export function AppRoutes() {
       <Route path="/features" element={<FeaturesPage />} />
       <Route path="/contact" element={<ContactPage />} />
       <Route path="/about" element={<AboutPage />} />
+      <Route path="/teacher/create-quiz" element={<CreateQuiz />} />
+      <Route path="/teacher/dashboard" element={<TeacherDashboard />} />
+      <Route path="/student/dashboard" element={<StudentDashboard />} />
+      <Route path="/student/quiz/:quizId" element={<QuizPage />} />
+      {/* Add more routes as needed */}
     </Routes>
   );
 }
