@@ -18,11 +18,11 @@ export const createQuiz = async (req, res) => {
 // Get all quizzes (with pagination)
 export const getAllQuizzes = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
+    const page1 = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     
     const quizzes = await Quiz.find()
-      .skip((page - 1) * limit)
+      .skip((page1 - 1) * limit)
       .limit(limit)
       .populate('createdBy', 'email');
       
