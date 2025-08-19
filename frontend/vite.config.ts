@@ -10,6 +10,9 @@ export default defineConfig({
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
+    build: {
+    outDir: 'dist'
+  }
   },
 })
 // This configuration file sets up Vite for a React project with Tailwind CSS.
