@@ -5,76 +5,82 @@ import { Label } from "@/components/ui/label";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { loginSchema } from "../validations/Login-Validation";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom"; // Import useNavigate
+import axios from "axios"; // Import axios
 
 const LoginPage = () => {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-  } = useForm({
-    resolver: zodResolver(loginSchema),
-    defaultValues: {
-      email: '',
-      password: '',
+  const navigate = useNavigate(); // Hook for navigation
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: '',
+      password: '',
+    }
+  });
+
+  // Updated onSubmit function to be async and handle API call
+  const onSubmit = async (data) => {
+    try {
+      // Send a POST request to your backend's login endpoint
+      const response = await axios.post('http://localhost:5000/api/auth/login', data);
+
+      console.log("Login successful:", response.data);
+      
+      // IMPORTANT: Store the token, for example in localStorage
+      // This is how your app will know the user is logged in.
+      localStorage.setItem('token', response.data.token);
+
+      // Check the userType from the response and redirect accordingly
+      const { userType } = response.data;
+      if (userType === 'teacher') {
+        navigate('/teacher/dashboard');
+      } else {
+        navigate('/student/dashboard');
+      }
+
+    } catch (error) {
+      // Log the error if the request fails
+      console.error("Login failed:", error.response?.data?.message || error.message);
+      // Optional: Display an error message to the user
     }
-  });
+  };
 
-  const onSubmit = (data) => {
-    console.log("Login data:", data);
-    // Add your login logic here
-  };
-
-  return (
-    <Card className="w-full max-w-md mx-auto mt-15">
-      <CardHeader>
-        <CardTitle className="text-center">Login to QuizMaster</CardTitle>
-        <CardDescription className="text-center">
-          Enter your credentials to access your account
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+  return (
+    <Card className="w-full max-w-md mx-auto mt-15">
+      <CardHeader>
+        <CardTitle className="text-center">Login to QuizMaster</CardTitle>
+        <CardDescription className="text-center">
+          Enter your credentials to access your account
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          {/* --- Your form inputs remain the same --- */}
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              {...register("email")}
-              id="email"
-              type="email"
-              placeholder="user@example.com"
-            />
-            {errors.email && (
-              <p className="text-sm text-red-500">{errors.email.message}</p>
-            )}
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
-            <Input
-              {...register("password")}
-              id="password"
-              type="password"
-              placeholder="••••••••"
-            />
-            {errors.password && (
-              <p className="text-sm text-red-500">{errors.password.message}</p>
-            )}
-          </div>
-          
-          <Button type="submit" className="w-full" disabled={isSubmitting}>
-            {isSubmitting ? "Logging in..." : "Login"}
-          </Button>
-          
-          <div className="text-center text-sm">
-            Don't have an account?{" "}
-            <Link to="/register" className="text-blue-600 hover:underline">
-              Register here
-            </Link>
-          </div>
-        </form>
-      </CardContent>
-    </Card>
-  );
+            <Label htmlFor="email">Email</Label>
+            <Input {...register("email")} id="email" type="email" placeholder="user@example.com" />
+            {errors.email && <p className="text-sm text-red-500">{errors.email.message}</p>}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="password">Password</Label>
+            <Input {...register("password")} id="password" type="password" placeholder="••••••••" />
+            {errors.password && <p className="text-sm text-red-500">{errors.password.message}</p>}
+          </div>
+          <Button type="submit" className="w-full" disabled={isSubmitting}>
+            {isSubmitting ? "Logging in..." : "Login"}
+          </Button>
+          <div className="text-center text-sm">
+            Don't have an account?{" "}
+            <Link to="/register" className="text-blue-600 hover:underline">Register here</Link>
+          </div>
+        </form>
+      </CardContent>
+    </Card>
+  );
 };
 
 export default LoginPage;

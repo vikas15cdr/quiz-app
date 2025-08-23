@@ -1,20 +1,45 @@
+// FILE: middlewares/authMiddleware.js
+
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
-import { API_ERRORS } from '../config/constants.js';
-import { sendErrorResponse } from '../utils/apiResponse.js';
+// Make sure you have this utility file or handle errors directly
+import { sendErrorResponse } from '../utils/apiResponse.js'; 
 
-export const authMiddleware = async (req, res, next) => {
-  try {
-    const token = req.headers.authorization?.split(' ')[1];  // Bearer <token>
-    if (!token) throw new Error(API_ERRORS.UNAUTHORIZED);
+// Protect routes by verifying token
+export const protect = async (req, res, next) => {
+  let token;
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findById(decoded.id);
-    if (!user) throw new Error(API_ERRORS.UNAUTHORIZED);
+  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+    try {
+      token = req.headers.authorization.split(' ')[1];
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      req.user = await User.findById(decoded.id).select('-password');
+      next();
+    } catch (error) {
+      console.error(error);
+      return sendErrorResponse(res, 401, 'Not authorized, token failed');
+    }
+  }
 
-    req.user = user;  // Attach user to request
+  if (!token) {
+    return sendErrorResponse(res, 401, 'Not authorized, no token');
+  }
+};
+
+// Middleware to check for 'teacher' role
+export const isTeacher = (req, res, next) => {
+  if (req.user && req.user.userType === 'teacher') {
     next();
-  } catch (err) {
-    sendErrorResponse(res, 401, err.message);
+  } else {
+    sendErrorResponse(res, 403, 'Access denied. Not a teacher.');
+  }
+};
+
+// Middleware to check for 'student' role
+export const isStudent = (req, res, next) => {
+  if (req.user && req.user.userType === 'student') {
+    next();
+  } else {
+    sendErrorResponse(res, 403, 'Access denied. Not a student.');
   }
 };

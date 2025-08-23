@@ -5,7 +5,7 @@ const connectDB = async () => {
   try {
     if (!MONGO_URI) throw new Error('MongoDB URI not configured');
     
-    await mongoose.connect(MONGO_URI); // Removed deprecated options
+    await mongoose.connect(MONGO_URI); 
     console.log('MongoDB Connected');
   } catch (err) {
     console.error('DB Error:', err.message);

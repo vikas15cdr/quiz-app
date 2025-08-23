@@ -1,27 +1,30 @@
 import { Router } from 'express';
 import {
-  createQuiz,
-  getAllQuizzes,
-  getQuizById,
-  updateQuiz,
-  deleteQuiz,
-  submitQuizAnswer
+  createQuiz,
+  getAllQuizzes,
+  getQuizById,
+  getQuizForEditing, // Import the new function
+  updateQuiz,
+  deleteQuiz,
+  submitQuizAnswer
 } from '../controllers/quizController.js';
-import { authMiddleware } from '../middlewares/authMiddleware.js';
-import { validateQuizInput } from '../middlewares/validationMiddleware.js';
+import { protect, isTeacher, isStudent } from '../middlewares/authMiddleware.js'; 
 
 const router = Router();
 
-// Public routes (read-only)
-router.get('/', getAllQuizzes);
-router.get('/:id', getQuizById);
+// --- Public Route ---
+router.get('/:id', getQuizById); // For students to view a published quiz
 
-// Protected routes (require JWT)
-router.post('/', authMiddleware, validateQuizInput, createQuiz);
-router.put('/:id', authMiddleware, validateQuizInput, updateQuiz);
-router.delete('/:id', authMiddleware, deleteQuiz);
+// --- Teacher-Only Routes ---
+router.post('/', protect, isTeacher, createQuiz); 
+router.put('/:id', protect, isTeacher, updateQuiz); 
+router.delete('/:id', protect, isTeacher, deleteQuiz);
 
-// Quiz submission
-router.post('/:id/submit', authMiddleware, submitQuizAnswer);
+// --- NEW ROUTE ---
+// Secure route for a teacher to fetch their own quiz (draft or published) for editing
+router.get('/edit/:id', protect, isTeacher, getQuizForEditing);
+
+// --- Student-Only Route ---
+router.post('/:id/submit', protect, isStudent, submitQuizAnswer);
 
 export { router as quizRoutes };
