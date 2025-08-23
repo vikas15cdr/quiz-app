@@ -23,7 +23,7 @@ const QuizListPage: React.FC = () => {
     const fetchQuizzes = async () => {
       try {
         // This endpoint correctly fetches only published quizzes
-        const response = await axios.get('http://localhost:5000/api/quizzes');
+        const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/auth/quizzes`);;
         setQuizzes(response.data.data.quizzes); // Access the nested quizzes array
       } catch (err: any) {
         setError(err.response?.data?.message || "Failed to fetch quizzes.");

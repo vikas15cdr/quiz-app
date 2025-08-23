@@ -47,7 +47,7 @@ const EditQuizPage: React.FC = () => {
       try {
         const token = localStorage.getItem('token');
         // --- FIX: Use the correct '/edit/:id' route and send the auth token ---
-        const response = await axios.get(`http://localhost:5000/api/quizzes/edit/${id}`, {
+        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/quizzes/edit/${id}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         const quizData = response.data.data;
@@ -82,7 +82,7 @@ const EditQuizPage: React.FC = () => {
 
     try {
       const token = localStorage.getItem('token');
-      await axios.put(`http://localhost:5000/api/quizzes/${id}`, processedData, {
+      await axios.put(`${import.meta.env.VITE_API_BASE_URL}/api/quizzes/${id}`, processedData, {
         headers: { Authorization: `Bearer ${token}` }
       });
       navigate('/teacher/dashboard'); // Go back to dashboard on success

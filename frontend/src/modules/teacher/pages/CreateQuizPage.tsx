@@ -43,7 +43,7 @@ const CreateQuizPage = () => {
 
     try {
       const token = localStorage.getItem('token');
-      await axios.post('http://localhost:5000/api/quizzes', processedData, {
+      await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/quizzes`, processedData, {
         headers: { Authorization: `Bearer ${token}` }
       });
       navigate('/teacher/dashboard');

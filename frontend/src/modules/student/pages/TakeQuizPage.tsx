@@ -26,7 +26,7 @@ const TakeQuizPage: React.FC = () => {
   useEffect(() => {
     const fetchQuiz = async () => {
       try {
-        const response = await axios.get<{ data: Quiz }>(`http://localhost:5000/api/quizzes/${id}`);
+        const response = await axios.get<{ data: Quiz }>(`${import.meta.env.VITE_API_BASE_URL}/api/quizzes/${id}`);
         setQuiz(response.data.data);
       } catch (err) {
         setError("Failed to load the quiz. It may not be available.");

@@ -28,7 +28,7 @@ const RegisterPage = () => {
   const onSubmit = async (data) => {
     try {
       // Send a POST request to your backend's register endpoint
-      const response = await axios.post('http://localhost:5000/api/auth/register', data);
+      const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/auth/register`, data);
       
       console.log("Registration successful:", response.data);
       

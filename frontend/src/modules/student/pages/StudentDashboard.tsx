@@ -43,7 +43,7 @@ const StudentDashboard: React.FC = () => {
           return;
         }
         
-        const response = await axios.get<DashboardData>('http://localhost:5000/api/dashboards/student', {
+        const response = await axios.get<DashboardData>(`${import.meta.env.VITE_API_BASE_URL}/api/dashboards/student`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         

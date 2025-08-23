@@ -61,7 +61,7 @@ const TeacherDashboard: React.FC = () => {
 
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`http://localhost:5000/api/quizzes/${quizId}`, {
+      await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/api/quizzes/${quizId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
 

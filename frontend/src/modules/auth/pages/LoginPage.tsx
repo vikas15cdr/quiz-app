@@ -26,7 +26,7 @@ const LoginPage = () => {
 
   const onSubmit = async (data) => {
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/login', data);
+      const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/auth/login`, data);
 
       // Call the login function from the context to update the global state
       login(response.data.token);
