@@ -6,6 +6,7 @@ import { authRoutes } from './routes/authRoutes.js';
 import { dashboardRoutes } from './routes/dashboardRoutes.js'; 
 import { errorHandler } from './middlewares/errorHandler.js';
 import connectDB from './config/db.js';
+import { statsRoutes } from './routes/statsRoutes.js';
 
 const app = express();
 
@@ -18,6 +19,7 @@ app.use('/api/quizzes', quizRoutes);
 app.use('/api/auth', authRoutes);
 // --- ADD THE DASHBOARD ROUTES ---
 app.use('/api/dashboards', dashboardRoutes);
+app.use('/api/stats', statsRoutes);
 
 // Error Handler (Must be last!)
 app.use(errorHandler);

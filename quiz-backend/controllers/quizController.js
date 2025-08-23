@@ -1,4 +1,5 @@
 import Quiz from '../models/Quiz.js';
+import Result from '../models/Result.js';
 import { API_ERRORS } from '../config/constants.js';
 import { sendSuccessResponse, sendErrorResponse } from '../utils/apiResponse.js';
 
@@ -74,6 +75,7 @@ export const getQuizForEditing = async (req, res) => {
 // Update quiz (only by creator)
 export const updateQuiz = async (req, res) => {
   try {
+    // FIX 1: Whitelist all editable fields to ensure they are saved.
     const { title, description, category, questions, isPublished } = req.body;
     const updateData = { title, description, category, questions, isPublished };
 
@@ -86,8 +88,11 @@ export const updateQuiz = async (req, res) => {
     if (!quiz) {
       return sendErrorResponse(res, 404, API_ERRORS.QUIZ_NOT_FOUND);
     }
+
+    // FIX 2: Convert the Mongoose document to a plain object before sending the response.
     sendSuccessResponse(res, 200, quiz.toObject());
   } catch (err) {
+    console.error("--- QUIZ UPDATE ERROR ---", err);
     sendErrorResponse(res, 400, err.message);
   }
 };
@@ -123,13 +128,32 @@ export const submitQuizAnswer = async (req, res) => {
       return sendErrorResponse(res, 400, 'Answers must be an array.');
     }
 
+    // --- NEW LOGIC ---
+    // Check if the student has already taken this quiz
+    const existingResult = await Result.findOne({ quiz: req.params.id, student: req.user._id });
+    if (existingResult) {
+      return sendErrorResponse(res, 400, 'You have already attempted this quiz.');
+    }
+
     const score = calculateScore(quiz, answers);
+
+    // Save the new result to the database
+    await Result.create({
+      quiz: req.params.id,
+      student: req.user._id,
+      score,
+      answers
+    });
 
     sendSuccessResponse(res, 200, {
       score,
       message: 'Quiz submitted successfully!'
     });
   } catch (err) {
+    // Provide more specific error feedback if it's a duplicate attempt
+    if (err.code === 11000) {
+      return sendErrorResponse(res, 400, 'You have already attempted this quiz.');
+    }
     sendErrorResponse(res, 400, err.message);
   }
 };

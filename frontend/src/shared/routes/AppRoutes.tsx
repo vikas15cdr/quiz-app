@@ -12,7 +12,7 @@ import CreateQuizPage from '@/modules/teacher/pages/CreateQuizPage';
 import EditQuizPage from '@/modules/teacher/pages/EditQuizPage';
 
 // Import Student components
-import StudentDashboard from '@/modules/student/pages/Dashboard';
+import StudentDashboard from '@/modules/student/pages/StudentDashboard';
 import QuizListPage from '@/modules/student/pages/QuizListPage';
 import TakeQuizPage from '@/modules/student/pages/TakeQuizPage';
 

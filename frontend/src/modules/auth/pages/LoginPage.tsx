@@ -5,11 +5,13 @@ import { Label } from "@/components/ui/label";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { loginSchema } from "../validations/Login-Validation";
-import { Link, useNavigate } from "react-router-dom"; // Import useNavigate
-import axios from "axios"; // Import axios
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
+import { useAuth } from '@/context/AuthContext'; // Import useAuth
 
 const LoginPage = () => {
-  const navigate = useNavigate(); // Hook for navigation
+  const { login } = useAuth(); // Get the login function from context
+  const navigate = useNavigate();
   const {
     register,
     handleSubmit,
@@ -22,31 +24,23 @@ const LoginPage = () => {
     }
   });
 
-  // Updated onSubmit function to be async and handle API call
   const onSubmit = async (data) => {
     try {
-      // Send a POST request to your backend's login endpoint
-      const response = await axios.post('http://localhost:5000/api/auth/login', data);
+      const response = await axios.post('http://localhost:5000/api/auth/login', data);
 
-      console.log("Login successful:", response.data);
-      
-      // IMPORTANT: Store the token, for example in localStorage
-      // This is how your app will know the user is logged in.
-      localStorage.setItem('token', response.data.token);
+      // Call the login function from the context to update the global state
+      login(response.data.token);
 
-      // Check the userType from the response and redirect accordingly
-      const { userType } = response.data;
-      if (userType === 'teacher') {
-        navigate('/teacher/dashboard');
-      } else {
-        navigate('/student/dashboard');
-      }
+      const { userType } = response.data;
+      if (userType === 'teacher') {
+        navigate('/teacher/dashboard');
+      } else {
+        navigate('/student/dashboard');
+      }
 
-    } catch (error) {
-      // Log the error if the request fails
-      console.error("Login failed:", error.response?.data?.message || error.message);
-      // Optional: Display an error message to the user
-    }
+    } catch (error: any) {
+      console.error("Login failed:", error.response?.data?.message || error.message);
+    }
   };
 
   return (
@@ -59,8 +53,7 @@ const LoginPage = () => {
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          {/* --- Your form inputs remain the same --- */}
-          <div className="space-y-2">
+          <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input {...register("email")} id="email" type="email" placeholder="user@example.com" />
             {errors.email && <p className="text-sm text-red-500">{errors.email.message}</p>}
