@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from '@/components/ui/button';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 // --- Define TypeScript types ---
@@ -19,11 +19,20 @@ const QuizListPage: React.FC = () => {
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>('');
-
+  const navigate = useNavigate();
   useEffect(() => {
     const fetchQuizzes = async () => {
+      const token = localStorage.getItem('token');
+        if (!token) {
+          setError('No token found. Redirecting to login...');
+          setTimeout(() => navigate('/login'), 1500);
+          return;
+        }
       try {
-        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/auth/quizzes/student`);
+        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/quizzes/student`,
+          { headers: { Authorization: `Bearer ${token}` } } 
+        );
+        console.log(response);
         setQuizzes(response.data.data.quizzes);
       } catch (err: unknown) {
         if (axios.isAxiosError(err)) {
