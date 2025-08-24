@@ -1,31 +1,32 @@
 import { Router } from 'express';
 import {
   createQuiz,
-  getAllQuizzes, // Make sure this is imported
+  getAllPublishedQuizzes, // Make sure this is imported
   getQuizById,
   getQuizForEditing,
   updateQuiz,
   deleteQuiz,
-  submitQuizAnswer
+  submitQuizAnswer,
+getQuizzesForStudent
 } from '../controllers/quizController.js';
 import { protect, isTeacher, isStudent } from '../middlewares/authMiddleware.js'; 
 
 const router = Router();
 
-// --- THIS ROUTE WAS MISSING ---
-// Public route to get all published quizzes
-router.get('/', getAllQuizzes); 
+// Public
+router.get('/', getAllPublishedQuizzes);
+router.get('/:id', getQuizById);
 
-// --- Public Route for a single quiz ---
-router.get('/:id', getQuizById); // For students to view a published quiz
+// Student
+router.get('/student', protect, isStudent, getQuizzesForStudent);
+router.post('/:id/submit', protect, isStudent, submitQuizAnswer);
 
-// --- Teacher-Only Routes ---
-router.post('/', protect, isTeacher, createQuiz); 
-router.put('/:id', protect, isTeacher, updateQuiz); 
+// Teacher
+router.post('/', protect, isTeacher, createQuiz);
+router.put('/:id', protect, isTeacher, updateQuiz);
 router.delete('/:id', protect, isTeacher, deleteQuiz);
 router.get('/edit/:id', protect, isTeacher, getQuizForEditing);
 
-// --- Student-Only Route ---
-router.post('/:id/submit', protect, isStudent, submitQuizAnswer);
 
 export { router as quizRoutes };
+

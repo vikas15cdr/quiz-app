@@ -18,7 +18,7 @@ export const createQuiz = async (req, res) => {
 };
 
 // Get all published quizzes with pagination
-export const getAllQuizzes = async (req, res) => {
+export const getAllPublishedQuizzes = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
@@ -38,6 +38,15 @@ export const getAllQuizzes = async (req, res) => {
   } catch (err) {
     sendErrorResponse(res, 500, API_ERRORS.SERVER_ERROR);
   }
+};
+
+export const getQuizzesForStudent = async (req, res) => {
+  try {
+    const quizzes = await Quiz.find({ isPublished: true }).populate('createdBy', 'name');
+    sendSuccessResponse(res, 200, { quizzes });
+  } catch (err) {
+    sendErrorResponse(res, 500, 'Failed to fetch quizzes for student.');
+  }
 };
 
 // Get a single quiz by ID (for students/public view)

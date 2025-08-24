@@ -23,7 +23,7 @@ const QuizListPage: React.FC = () => {
   useEffect(() => {
     const fetchQuizzes = async () => {
       try {
-        const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/auth/quizzes`);
+        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/auth/quizzes/student`);
         setQuizzes(response.data.data.quizzes);
       } catch (err: unknown) {
         if (axios.isAxiosError(err)) {
