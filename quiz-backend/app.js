@@ -12,10 +12,10 @@ const app = express();
 
 const allowedOrigins = [
   'https://quiz-app-lime-one-75.vercel.app',
-  'http://localhost:5173', // optional for local dev
+  'http://localhost:5173',
 ];
 
-app.use(cors({
+const corsOptions = {
   origin: (origin, callback) => {
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
@@ -25,9 +25,17 @@ app.use(cors({
     }
   },
   credentials: true,
-}));
+};
+
+app.use(cors(corsOptions));
+
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.url} from origin: ${req.headers.origin}`);
+  next();
+});
 
 app.use(express.json());
+
 
 // Routes
 app.use('/api/quizzes', quizRoutes);
