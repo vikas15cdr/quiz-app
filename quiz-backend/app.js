@@ -11,7 +11,7 @@ import { statsRoutes } from './routes/statsRoutes.js';
 const app = express();
 
 const allowedOrigins = [
-  'https://quiz-app-line-one-75.vercel.app',
+  'https://quiz-app-lime-one-75.vercel.app',
   'http://localhost:5173', // optional for local dev
 ];
 
