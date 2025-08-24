@@ -24,6 +24,7 @@ router.post('/', protect, isTeacher, createQuiz);
 router.put('/:id', protect, isTeacher, updateQuiz); 
 router.delete('/:id', protect, isTeacher, deleteQuiz);
 router.get('/edit/:id', protect, isTeacher, getQuizForEditing);
+router.get('/:id', getQuizById);
 
 // --- Student-Only Route ---
 router.post('/:id/submit', protect, isStudent, submitQuizAnswer);
