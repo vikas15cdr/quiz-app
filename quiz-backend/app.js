@@ -10,11 +10,17 @@ import { statsRoutes } from './routes/statsRoutes.js';
 
 const app = express();
 
-// Middlewares
+const allowedOrigins = [
+  'https://quiz-app-line-one-75.vercel.app',
+  'http://localhost:5173', // optional for local dev
+];
+
 app.use(cors({
-  origin: ['http://localhost:5173', "https://quiz-app-lime-one-75.vercel.app/"],
-  credentials: true,
+  origin: allowedOrigins,
+  credentials: true, // if you're using cookies or auth headers
 }));
+
+app.options('*', cors());
 app.use(express.json());
 
 // Routes
