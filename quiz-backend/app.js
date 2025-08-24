@@ -12,7 +12,7 @@ const app = express();
 
 // Middlewares
 app.use(cors({
-  origin: ['http://localhost:5173', 'https://your-frontend-domain.com'],
+  origin: ['http://localhost:5173', "https://quiz-app-lime-one-75.vercel.app/"],
   credentials: true,
 }));
 app.use(express.json());
