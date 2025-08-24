@@ -3,21 +3,22 @@ import { Link } from 'react-router-dom';
 
 export default function Footer() {
   return (
-    <footer className="bg-gray-50 border-t py-8 mt-12">
+    <footer className="bg-gray-50 border-t py-8 mt-12" aria-label="Site Footer">
       <div className="container mx-auto px-4">
         <div className="flex flex-col md:flex-row justify-between items-center">
+          
           {/* Logo and copyright */}
-          <div className="mb-4 md:mb-0">
+          <div className="mb-4 md:mb-0 text-center md:text-left">
             <Link to="/" className="text-lg font-bold text-blue-600">
               QuizMaster
             </Link>
-            <p className="text-gray-500 text-sm mt-1">
+            <p className="text-gray-500 text-sm md:text-base mt-1">
               © {new Date().getFullYear()} All rights reserved
             </p>
           </div>
 
-          {/* Links */}
-          <div className="flex flex-wrap gap-4 justify-center">
+          {/* Navigation Links */}
+          <nav className="flex flex-wrap gap-4 justify-center" aria-label="Footer Navigation">
             <Link 
               to="/terms" 
               className="text-gray-600 hover:text-blue-500 text-sm"
@@ -36,7 +37,7 @@ export default function Footer() {
             >
               Contact
             </Link>
-          </div>
+          </nav>
         </div>
       </div>
     </footer>

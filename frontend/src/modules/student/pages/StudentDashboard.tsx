@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from '@/components/ui/button';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
-// --- Define TypeScript types for the data ---
+// --- Define TypeScript types ---
 interface User {
   _id: string;
   name: string;
@@ -32,31 +32,37 @@ const StudentDashboard: React.FC = () => {
   const [dashboardData, setDashboardData] = useState<DashboardData>({ user: null, results: [] });
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>('');
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const token = localStorage.getItem('token');
         if (!token) {
-          setError('No token found. Please login.');
-          setLoading(false);
+          setError('No token found. Redirecting to login...');
+          setTimeout(() => navigate('/login'), 1500);
           return;
         }
-        
-        const response = await axios.get<DashboardData>(`${import.meta.env.VITE_API_BASE_URL}/api/dashboards/student`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        
+
+        const response = await axios.get<DashboardData>(
+          `${import.meta.env.VITE_API_BASE_URL}/api/dashboards/student`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+
         setDashboardData(response.data);
-      } catch (err: any) {
-        setError(err.response?.data?.message || 'Failed to fetch dashboard data.');
+      } catch (err: unknown) {
+        if (axios.isAxiosError(err)) {
+          setError(err.response?.data?.message || err.message);
+        } else {
+          setError('Unexpected error occurred.');
+        }
       } finally {
         setLoading(false);
       }
     };
 
     fetchData();
-  }, []);
+  }, [navigate]);
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div className="text-red-500">{error}</div>;
@@ -74,14 +80,17 @@ const StudentDashboard: React.FC = () => {
           </Link>
 
           <h3 className="text-lg font-semibold mt-6 mb-2 border-t pt-4">My Quiz History</h3>
-          
-          {dashboardData.results && dashboardData.results.length > 0 ? (
+
+          {dashboardData.results.length > 0 ? (
             <ul className="space-y-2">
               {dashboardData.results.map(result => (
                 <li key={result._id} className="flex justify-between items-center p-3 border rounded-md">
                   <div>
                     <p className="font-medium">{result.quiz.title}</p>
                     <p className="text-sm text-gray-500">{result.quiz.category}</p>
+                    <p className="text-xs text-gray-400">
+                      Taken on {new Date(result.createdAt).toLocaleDateString()}
+                    </p>
                   </div>
                   <span className="font-bold text-lg">{result.score.toFixed(0)}%</span>
                 </li>

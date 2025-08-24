@@ -7,73 +7,81 @@ import { useForm } from "react-hook-form";
 import { loginSchema } from "../validations/Login-Validation";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { useAuth } from '@/context/AuthContext'; // Import useAuth
+import { useAuth } from "@/context/useAuth";
+import { z } from "zod";
+
+
+type LoginFormData = z.infer<typeof loginSchema>;
 
 const LoginPage = () => {
-  const { login } = useAuth(); // Get the login function from context
-  const navigate = useNavigate();
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-  } = useForm({
-    resolver: zodResolver(loginSchema),
-    defaultValues: {
-      email: '',
-      password: '',
-    }
-  });
+  const { login } = useAuth();
+  const navigate = useNavigate();
 
-  const onSubmit = async (data) => {
-    try {
-      const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/auth/login`, data);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: '',
+      password: '',
+    },
+  });
 
-      // Call the login function from the context to update the global state
-      login(response.data.token);
+  const onSubmit = async (data: LoginFormData) => {
+    try {
+      const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/auth/login`, data);
 
-      const { userType } = response.data;
-      if (userType === 'teacher') {
-        navigate('/teacher/dashboard');
-      } else {
-        navigate('/student/dashboard');
-      }
+      login(response.data.token); // ✅ Update global auth state
 
-    } catch (error: any) {
-      console.error("Login failed:", error.response?.data?.message || error.message);
-    }
-  };
+      const { userType } = response.data;
+      if (userType === 'teacher') {
+        navigate('/teacher/dashboard');
+      } else {
+        navigate('/student/dashboard');
+      }
 
-  return (
-    <Card className="w-full max-w-md mx-auto mt-15">
-      <CardHeader>
-        <CardTitle className="text-center">Login to QuizMaster</CardTitle>
-        <CardDescription className="text-center">
-          Enter your credentials to access your account
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input {...register("email")} id="email" type="email" placeholder="user@example.com" />
-            {errors.email && <p className="text-sm text-red-500">{errors.email.message}</p>}
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
-            <Input {...register("password")} id="password" type="password" placeholder="••••••••" />
-            {errors.password && <p className="text-sm text-red-500">{errors.password.message}</p>}
-          </div>
-          <Button type="submit" className="w-full" disabled={isSubmitting}>
-            {isSubmitting ? "Logging in..." : "Login"}
-          </Button>
-          <div className="text-center text-sm">
-            Don't have an account?{" "}
-            <Link to="/register" className="text-blue-600 hover:underline">Register here</Link>
-          </div>
-        </form>
-      </CardContent>
-    </Card>
-  );
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        console.error("Login failed:", error.response?.data?.message || error.message);
+      } else {
+        console.error("Unexpected error:", error);
+      }
+    }
+  };
+
+  return (
+    <Card className="w-full max-w-md mx-auto mt-15">
+      <CardHeader>
+        <CardTitle className="text-center">Login to QuizMaster</CardTitle>
+        <CardDescription className="text-center">
+          Enter your credentials to access your account
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="email">Email</Label>
+            <Input {...register("email")} id="email" type="email" placeholder="user@example.com" />
+            {errors.email && <p className="text-sm text-red-500">{errors.email.message}</p>}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="password">Password</Label>
+            <Input {...register("password")} id="password" type="password" placeholder="••••••••" />
+            {errors.password && <p className="text-sm text-red-500">{errors.password.message}</p>}
+          </div>
+          <Button type="submit" className="w-full" disabled={isSubmitting}>
+            {isSubmitting ? "Logging in..." : "Login"}
+          </Button>
+          <div className="text-center text-sm">
+            Don't have an account?{" "}
+            <Link to="/register" className="text-blue-600 hover:underline">Register here</Link>
+          </div>
+        </form>
+      </CardContent>
+    </Card>
+  );
 };
 
 export default LoginPage;

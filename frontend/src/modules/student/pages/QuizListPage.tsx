@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 
+// --- Define TypeScript types ---
 interface Quiz {
   _id: string;
   title: string;
@@ -22,15 +23,19 @@ const QuizListPage: React.FC = () => {
   useEffect(() => {
     const fetchQuizzes = async () => {
       try {
-        // This endpoint correctly fetches only published quizzes
-        const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/auth/quizzes`);;
-        setQuizzes(response.data.data.quizzes); // Access the nested quizzes array
-      } catch (err: any) {
-        setError(err.response?.data?.message || "Failed to fetch quizzes.");
+        const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/auth/quizzes`);
+        setQuizzes(response.data.data.quizzes);
+      } catch (err: unknown) {
+        if (axios.isAxiosError(err)) {
+          setError(err.response?.data?.message || "Failed to fetch quizzes.");
+        } else {
+          setError("Unexpected error occurred.");
+        }
       } finally {
         setLoading(false);
       }
     };
+
     fetchQuizzes();
   }, []);
 
@@ -46,7 +51,9 @@ const QuizListPage: React.FC = () => {
             <Card key={quiz._id}>
               <CardHeader>
                 <CardTitle>{quiz.title}</CardTitle>
-                <CardDescription>Category: {quiz.category} | By: {quiz.createdBy?.name || 'Unknown'}</CardDescription>
+                <CardDescription>
+                  Category: {quiz.category} | By: {quiz.createdBy?.name || 'Unknown'}
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <p>{quiz.description}</p>

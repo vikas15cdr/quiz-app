@@ -12,7 +12,7 @@ export const registerSchema = z.object({
     .max(20, "Password must be not more than 20 characters")
     .regex(/[A-Z]/, "Must contain at least one uppercase letter")
     .regex(/[0-9]/, "Must contain at least one number"),
-  userType: z.enum(["student", "teacher"])
+  userType: z.enum(["student", "teacher"]),
 });
 
-export type RegisterSchema = z.infer<typeof registerSchema>;
+export type RegisterFormData = z.infer<typeof registerSchema>;

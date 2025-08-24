@@ -9,4 +9,4 @@ export const loginSchema = z.object({
     .max(20, "Password must be not more than 20 characters")
 });
 
-export type LoginSchema = z.infer<typeof loginSchema>;
+export type LoginFormData = z.infer<typeof loginSchema>;

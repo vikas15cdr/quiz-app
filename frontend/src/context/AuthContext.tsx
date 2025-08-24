@@ -1,67 +1,82 @@
-import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
-import { jwtDecode } from 'jwt-decode'; // We'll use a library to decode the token
+// src/frontend/context/AuthContext.tsx
+import React, { createContext, useState, useEffect } from 'react';
+import type { ReactNode } from 'react';
+import { jwtDecode } from 'jwt-decode';
 
 interface User {
   name: string;
   userType: 'student' | 'teacher';
 }
 
+interface DecodedToken extends User {
+  exp: number;
+}
+
 interface AuthContextType {
   isAuthenticated: boolean;
   user: User | null;
+  error: string | null;
   login: (token: string) => void;
   logout: () => void;
+  clearError: () => void;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const TOKEN_KEY = 'token';
 
-// Helper function to get user from token
+export const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
 const getUserFromToken = (token: string): User | null => {
   try {
-    const decoded: { name: string; userType: 'student' | 'teacher' } = jwtDecode(token);
-    return { name: decoded.name, userType: decoded.userType };
-  } catch (error) {
+    const decoded = jwtDecode<DecodedToken>(token);
+    const isExpired = decoded.exp * 1000 < Date.now();
+    return isExpired ? null : { name: decoded.name, userType: decoded.userType };
+  } catch {
     return null;
   }
 };
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [user, setUser] = useState<User | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      setUser(getUserFromToken(token));
+    const token = localStorage.getItem(TOKEN_KEY);
+    const userData = token ? getUserFromToken(token) : null;
+
+    if (userData) {
+      setUser(userData);
       setIsAuthenticated(true);
+    } else {
+      localStorage.removeItem(TOKEN_KEY); // Defensive cleanup
     }
   }, []);
 
   const login = (token: string) => {
-    localStorage.setItem('token', token);
     const userData = getUserFromToken(token);
-    setUser(userData);
-    setIsAuthenticated(true);
+    if (userData) {
+      localStorage.setItem(TOKEN_KEY, token);
+      setUser(userData);
+      setIsAuthenticated(true);
+      setError(null);
+    } else {
+      setError('Invalid or expired token');
+      logout(); // Defensive fallback
+    }
   };
 
   const logout = () => {
-    localStorage.removeItem('token');
+    localStorage.removeItem(TOKEN_KEY);
     setUser(null);
     setIsAuthenticated(false);
-    window.location.href = '/'; 
+    setError(null);
   };
 
+  const clearError = () => setError(null);
+
   return (
-    <AuthContext.Provider value={{ isAuthenticated, user, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, user, error, login, logout, clearError }}>
       {children}
     </AuthContext.Provider>
   );
-};
-
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
 };
