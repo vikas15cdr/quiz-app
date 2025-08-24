@@ -15,11 +15,13 @@ const router = Router();
 
 // Public
 router.get('/', getAllPublishedQuizzes);
-router.get('/:id', getQuizById);
 
-// Student
+// Student (must come before /:id to avoid conflicts)
 router.get('/student', protect, isStudent, getQuizzesForStudent);
 router.post('/:id/submit', protect, isStudent, submitQuizAnswer);
+
+// Public (specific routes with parameters should come after specific named routes)
+router.get('/:id', getQuizById);
 
 // Teacher
 router.post('/', protect, isTeacher, createQuiz);

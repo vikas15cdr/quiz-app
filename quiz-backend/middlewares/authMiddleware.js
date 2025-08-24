@@ -8,7 +8,7 @@ import { sendErrorResponse } from '../utils/apiResponse.js';
 // Protect routes by verifying token
 export const protect = async (req, res, next) => {
   let token;
-
+  console.log("Inside Protect");
   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
     try {
       token = req.headers.authorization.split(' ')[1];
@@ -37,6 +37,7 @@ export const isTeacher = (req, res, next) => {
 
 // Middleware to check for 'student' role
 export const isStudent = (req, res, next) => {
+  console.log("Inside Student");
   if (req.user && req.user.userType === 'student') {
     next();
   } else {
